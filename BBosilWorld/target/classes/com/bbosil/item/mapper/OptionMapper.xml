@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+ <mapper namespace="com.bbosil.item.mapper.OptionMapper">
+ 
+ <select id = "list" resultType="com.bbosil.item.vo.OptionVO">
+ 
+ select i. itemNo, i. optionValueNo, t.optiontype, v.optionvalue
+
+from itemOption i, optiontype t, optionvalue v
+
+where i.itemNo = #{itemNo} and (i.optionValueNo = v.optionValueNo) and (t.optionNo = v.optionNo)
+ 
+ </select>
+ 
+ 
+<!-- 특정 아이템이 가진 옵션리스트에서  옵션종류를 중복값을 제거하고 가져온다.-->
+ <select id = "distincType" resultType="com.bbosil.item.vo.OptionVO">
+
+ select distinct optionType, optionNo from (
+ 
+ 
+ select i. itemNo,  t.optiontype , t.optionNo
+
+from itemOption i, optiontype t, optionvalue v
+
+where i.itemNo = #{itemNo} and (i.optionValueNo = v.optionValueNo) and (t.optionNo = v.optionNo)
+ 
+ )
+ 
+ </select>
+ 
+<!--  옵션 값 등록에 사용할 옵션종류를 가져온다. -->
+ <select id = "typeList" resultType="com.bbosil.item.vo.OptionVO">
+ 
+  select optionNo, optionType from optionType
+ 
+ </select>
+ 
+<!--  상품에 특정 옵션을 등록할 때 보기 위한 기존의 값과 종류  리스트-->
+ <select id = "valueList" resultType="com.bbosil.item.vo.OptionVO">
+ 
+ 	select t.optionType , v.optionValueNo, v.optionValue , v.optionNo 
+ 	
+ 	from optionValue v, optionType t
+ 	
+ 	where (t.optionNo = v.optionNo)
+ 	
+ 	order by optionNo desc
+ 	
+ </select>
+ 
+ <select id = "cartOption" resultType="com.bbosil.item.vo.OptionVO">
+ 
+ 	select t.optionType , v.optionValueNo, v.optionValue , v.optionNo 
+ 	
+ 	from optionValue v, optionType t
+ 	
+ 	where v.optionValueNo = #{optionValueNo} and (t.optionNo = v.optionNo)
+ 
+ </select>
+ 
+ <insert id ="writeType">
+ 
+ insert into optionType (optionNo, optionType) 
+ 
+ values (optionType_seq.nextval, #{optionType})
+ 
+ </insert>
+ <insert id ="writeValue">
+ 
+ insert into optionValue(optionValueNo,optionNo,optionValue)
+ 
+ values(optionValue_seq.nextval,#{optionNo},#{optionValue})
+ 
+ </insert>
+ 
+ <insert id ="writeOption">
+ 
+ insert into itemOption(itemNo , optionValueNo)
+ 
+ values(#{itemNo}, #{optionValueNo})
+ 
+ </insert>
+ 
+ 
+ <delete id="deleteType">
+ 
+ 	delete from optionType where optionNo = #{optionNo}
+ 
+ </delete>
+ 
+ <delete id="deleteValue">
+ 
+ 	delete from optionValue where optionValueNo = #{optionValueNo}
+ 
+ </delete>
+ 
+ <delete id="deleteOption">
+ 
+ 	delete from itemOption 
+ 	
+ 	where itemNo = #{itemNo} and optionValueNo = #{optionValueNo}
+ 
+ </delete>
+ 
+ <delete id="deleteOptionType">
+ 
+delete from itemOption
+
+	where optionValueNo IN (
+	    select  optionValueNo
+	    from optionValue
+	    where optionNo = #{optionNo}
+	) 
+
+	and itemNo = #{itemNo}
+ 	
+ </delete>
+ 
+ <delete id="deleteAllOption">
+ 
+ delete from itemOption
+where  itemNo = #{itemNo}
+ 
+ </delete>
+ 
+ </mapper>

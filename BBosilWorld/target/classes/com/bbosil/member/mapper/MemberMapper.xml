@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbosil.member.mapper.MemberMapper">
+	
+	<!-- 로그인  -->
+	<select id="login" resultType="com.bbosil.member.vo.LoginVO">
+	
+		select m.id, m.name, m.gradeNo, m.status, g.gradeName 
+		from member m, grade g 
+		where (m.id = #{id} and pw = #{pw}) and (m.gradeNo = g.gradeNo)
+	
+	</select>
+
+	<!-- 회원 리스트  -->
+<!-- 	<select id="list" resultType="com.bbosil.member.vo.MemberVO"> -->
+<!-- 		select m.id, m.name, m.email, m.tel, m.status, m.gradeNo, g.gradeName  -->
+<!-- 		from member m, grade g -->
+<!-- 		where m.gradeNo = g.gradeNo -->
+<!-- 	</select> -->
+	
+		<!-- 회원 리스트  -->
+	<select id="list" resultType="com.bbosil.member.vo.MemberVO">
+		select id, name, email, tel, status, gradeNo, gradeName
+		from(
+			select
+				rownum rnum, m.id, m.name, m.email, m.tel, m.status, m.gradeNo, g.gradeName 
+			from member m, grade g
+			<include refid="search" />
+		)
+		where rnum between #{startRow} and #{endRow}
+		
+	</select>
+	
+	<!-- 회원리스트 불러올 때 전체 수 집계하기  -->
+	<select id="getTotalRow" resultType="Long">
+	
+		select count(*)
+		from member m, grade g
+		<include refid="search" />
+	</select>
+	
+		<!-- 회원 리스트에 검색을 적용 시키는 쿼리 따로 만들어 준다. - list와  getTotalRow에 포함시켜서 사용. -->
+	<sql id="search">
+		where
+		<!-- word의 데이터가 존재할 때만 검색을 한다. -->
+		<if test="word !=null and word != ''.toString()">
+			<!-- 1=0 앞에 조건으로 붙인 것은 뒤에 or 연산자를 이어 붙인다. -->
+				 ( 1 = 0
+				<if test='key.toString().indexOf("id") >= 0'>
+					or id like '%' || #{word} || '%'
+				</if>
+				<if test='key.toString().indexOf("name") >= 0'>
+					or name like '%' || #{word} || '%'
+				</if>
+				<if test='key.toString().indexOf("email") >= 0'>
+					or email like '%' || #{word} || '%'
+				</if>
+				<if test='key.toString().indexOf("status") >= 0'>
+					or status like '%' || #{word} || '%'
+				</if>
+				<if test='key.toString().indexOf("gradeName") >= 0'>
+					or gradeName like '%' || #{word} || '%'
+				</if>
+			) and 
+		</if>
+		(m.gradeNo = g.gradeNo)
+	</sql>
+
+	
+	<!-- 회원 정보 보기  -->
+	<select id="view" resultType="com.bbosil.member.vo.MemberVO">
+	
+		select m.id, m.name, m.email, m.tel, m.postalcode, m.address, m.detail_address, to_char(m.birth, 'yyyy-mm-dd') birth 
+		from member m, grade g 
+		where (m.id = #{id}) and (m.gradeNo = g.gradeNo)
+	
+	</select>
+	
+	<!-- 회원가입   -->
+	<insert id="write">
+		insert into member(id, pw, name, email, tel, postalcode, address, detail_address, birth) 
+		values(#{id}, #{pw}, #{name}, #{email}, #{tel}, #{postalcode}, #{address}, #{detail_address}, #{birth})
+	</insert>
+	
+	<!-- 회원 정보 수정  -->
+	<update id="update">
+	
+	update member 
+	set 
+		name = #{name},
+		birth = #{birth}, 
+		tel = #{tel}, 
+		postalcode = #{postalcode}, 
+		address = #{address}, 
+		detail_address = #{detail_address}
+	where id = #{id}
+
+	</update>
+	
+	<!-- 아이디 찾기  -->
+	<select id="findid" resultType="java.lang.String">
+		select id
+		from member
+		where name = #{name} and email = #{email}
+	</select>
+	
+	<!-- 비밀번호 찾기  -->
+	<select id="findpw" resultType="com.bbosil.member.vo.MemberVO">
+		select id, name, email
+		from member
+		where id = #{id} and name = #{name} and email = #{email}
+	</select>
+	
+	<!-- 비밀번호 변경  -->
+	<update id="changepw">
+	
+		update member 
+		set 
+			pw = #{pw}
+		where id = #{id}
+
+	</update>
+
+	
+<!-- 	AJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAXAJAX -->
+	<!-- 아이디 중복 체크 -->
+	<select id="checkIdDuplicate" resultType="java.lang.String">
+		select id 
+		from member
+		where id = #{id}
+	</select>
+	
+	<!-- 이메일 중복 체크 -->
+	<select id="checkEmailDuplicate" resultType="java.lang.String">
+		select email 
+		from member
+		where email = #{email}
+	</select>
+	
+	<!-- 비밀번호 일치~ 확인 체크 -->
+	<select id="checkPassword" resultType="java.lang.String">
+		select id
+		from member
+		where id = #{id} and pw = #{password}
+	</select>
+	
+	<!-- 회원탈퇴  -->
+	<update id="delete">
+		update member 
+		set 
+			status = '탈퇴'
+		where id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,31 @@
+package com.bbosil.review.mapper;
+
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+import com.bbosil.review.vo.ReviewVO;
+import com.webjjang.util.page.PageObject;
+
+@Repository
+public interface ReviewMapper {
+	
+	// list
+	public List<ReviewVO> list(PageObject pageObject);
+	
+	// 전체 데이터 개수
+	public Long getTotalRow(PageObject pageObject);
+	
+	// view
+	public ReviewVO view(Long no);
+	
+	// write
+	public int write(ReviewVO vo);
+	
+	// update
+	public int update(ReviewVO vo);
+	
+	// delete
+	public int delete(ReviewVO vo);
+
+}

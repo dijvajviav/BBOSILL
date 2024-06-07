@@ -1,0 +1,35 @@
+package com.bbosil.review.vo;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
+
+import lombok.Data;
+
+@Data
+public class ReviewVO {
+	
+	private long rnum;
+	private long no;
+	private String id;
+	private String name;
+	private String content;
+	@DateTimeFormat(pattern = "yyyy-mm-dd")
+	private String writeDate;
+	@DateTimeFormat(pattern = "yyyy-mm-dd")
+	private String updateDate;
+	private long rating;
+	private String ment;
+	private String adminreply;
+	private String fileName; // DB와 연결, 파일이 아니고 서버에 올라가 있는 파일의 정보
+	private long itemNo;
+	private String itemImage;
+	private String itemName;
+	
+	
+	// 클라이언트에서 보내는 파일을 받는 변수가 필요
+	// 여기서 파일이름을 꺼내서 서버에 저장하는 정보로 사용한다.
+	// -> 서버에 저장된 파일명을 fileName에 전달한다. 
+	
+	private MultipartFile imageFile; // byte 단위의 파일 저장됨. - 대표 이미지
+	
+}

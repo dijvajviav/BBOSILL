@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbosil.coupon.mapper.CouponMapper">
+
+
+	<!-- 현재 생성된 전체 쿠폰 리스트 -->
+	<select id="list" resultType="com.bbosil.coupon.vo.CouponVO">
+	
+		select couponno, couponname, discountvalue  
+		from coupon
+	
+	</select>
+	
+	<!-- 소유 쿠폰 리스트(회원이 본인이 소유한 쿠폰을 보는 것)  -->
+	<select id="listMemCo" resultType="com.bbosil.coupon.vo.CouponVO">
+	
+		select cp.id, c.couponno, c.couponName, c.discountValue, cp.usageLimit
+		from coupon c, member_coupon cp
+		where (c.couponno = cp.couponno) and (cp.id = #{id})
+	
+	</select>
+	
+	<!-- 장바구니 리스트 불러올 때 전체 수 집계하기  -->
+	<select id="getTotalRow" resultType="Long">
+		select count(*)
+		from coupon
+	</select>
+	
+	<!-- 쿠폰 생성   -->
+	<insert id="write">
+		<selectKey keyProperty="couponNo" resultType="long" order="BEFORE">
+			select coupon_seq.nextval from dual
+		</selectKey>
+	
+		insert into coupon(couponNo, couponName, discountValue) 
+		values(#{couponNo}, #{couponName}, #{discountValue})
+
+	</insert>
+	
+		<!-- 쿠폰을 특정 회원에게 부여   -->
+	<insert id="writeMem">
+	    insert into member_coupon(id, couponNo)
+	    values(#{id}, #{couponNo})
+	</insert>
+	
+<!-- 	선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선선 -->
+
+
+	<!-- 특정 회원의 쿠폰 중복확인  -->
+	<select id="couponcheck" resultType="com.bbosil.coupon.vo.CouponVO">
+		select couponNo
+		from coupon
+		where couponNo = #{couponno} and id = #{id}
+	</select>
+
+	<!-- 소유 쿠폰에 수량만 더하기  -->
+	<update id="update">
+		update coupon 
+		set 
+			count = count + #{count}
+		where couponNo = #{couponno} and id = #{id}
+	</update>
+		
+	<!--  전체 쿠폰 리스트에서 특정 쿠폰 삭제하기   -->
+	<delete id ="delete" >
+	  delete from coupon
+	  where couponNo = #{couponNo}
+  </delete>
+	
+</mapper>

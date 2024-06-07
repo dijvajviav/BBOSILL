@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbosil.cart.mapper.CartMapper">
+
+
+	<!-- 장바구니 리스트  -->
+	<select id="list" resultType="com.bbosil.cart.vo.CartVO">
+		select c.cno, c.id, c.optionnames, i.itemNo, i.itemName, c.count, i.itemImage, p.itemPrice, p.discount, p.rate
+		from cart c, member m, item i, price p 
+		where (c.id = m.id) and (i.itemNo = p.itemNo) and (c.itemNo = i.itemNo) and  (startDate &lt; sysdate and sysdate &lt; endDate) and (c.id = #{id})
+	</select>
+	
+	<!-- 장바구니 리스트 불러올 때 전체 수 집계하기  -->
+	<select id="getTotalRow" resultType="Long">
+		select count(*)
+		from cart
+	</select>
+	
+	<!-- 장바구니에 물건 담기 옵션이 있는   -->
+	<insert id="write">
+		<selectKey keyProperty="cno" resultType="long" order="BEFORE">
+			select cart_seq.nextval from dual
+		</selectKey>
+		
+		insert into cart (cno, itemNo, id, optionnames, count) 
+		values (#{cno}, #{itemNo}, #{id}, #{optionnames}, #{count})
+		
+	</insert>
+	
+		<!-- 장바구니에 물건 담기 옵션이 없는   -->
+	<insert id="writenopotion">
+		<selectKey keyProperty="cno" resultType="long" order="BEFORE">
+			select cart_seq.nextval from dual
+		</selectKey>
+		
+		insert into cart (cno, itemNo, id, count) 
+		values (#{cno}, #{itemNo}, #{id}, #{count})
+		
+	</insert>
+	
+	<!-- 장바구니 물건 담기 전에 중복확인 옵션이 있는  -->
+	<select id="itemcheck" resultType="com.bbosil.cart.vo.CartVO">
+		select itemNo
+		from cart
+		where itemNo = #{itemNo} and id = #{id} and optionnames = #{optionnames}
+	</select>
+
+	<!-- 장바구니 물건 담기 전에 중복확인 옵션이 없는 -->
+	<select id="itemchecknopotion" resultType="com.bbosil.cart.vo.CartVO">
+		select itemNo
+		from cart
+		where itemNo = #{itemNo} and id = #{id}
+	</select>
+
+	<!-- 중복된 장바구니의 물건에 수량만 더하기 옵션이 있는 -->
+	<update id="update">
+		update cart 
+		set 
+			count = count + #{count}
+		where itemNo = #{itemNo} and id = #{id} and optionnames = #{optionnames}
+	</update>
+	
+		<!-- 중복된 장바구니의 물건에 수량만 더하기  옵션이 없는 -->
+	<update id="updatenopotion">
+		update cart 
+		set 
+			count = count + #{count}
+		where itemNo = #{itemNo} and id = #{id}
+	</update>
+	
+	<!-- 장바구니의 물건에 수량 수정하기  -->
+	<update id="updateItemCount">
+		update cart 
+		set 
+			count = #{count}
+		where cno = #{cno}
+	</update>
+	
+	
+	<!-- 장바구니에 물건 삭제하기   -->
+	<delete id ="delete" >
+	  delete from cart
+	  where cno = #{cno}
+  </delete>
+	
+</mapper>

@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.bbosil.item.mapper.ItemMapper">
+  
+<!--   작성자 : 김동건  
+	03-20 : 상품정보 crud 추가
+	03-22 : 가격 테이블 crud 추가.
+	03-26 : 가격 테이블 겹치는 날짜 처리 기능들을 추가.
+
+-->
+ 
+  
+  <!--   카테고리 리스트 -->
+  <select id = "category" resultType="com.bbosil.item.vo.CategoryVO">
+  
+  select categoryNo, categoryName
+  from category
+  
+  </select>
+  
+  
+<!--   list -->
+
+
+
+  <select id ="list" resultType="com.bbosil.item.vo.ItemVO">
+  
+  select 
+  			itemNo, itemName, itemImage, categoryNo, categoryName,
+			writeDate, producer, hit, itemPrice , discount ,rate
+
+	from(
+	select 
+		rownum rnum, itemNo, itemName, itemImage, categoryNo, categoryName,
+		writeDate, producer, hit, itemPrice, discount ,rate
+	from
+
+(
+	select 
+		i.itemNo, i.itemName , i.itemImage, i.categoryNo, 
+	  	c.categoryName , i.writeDate, i.producer, i.hit, p.itemPrice,p.discount,p.rate
+ 	from 
+ 	 item i, category c, price p 
+ 	 
+ 	 <if test="word == null or word ==''">
+ 	 	where 
+ 	 </if>
+<!--   	검색한 단어가 없을 경우에도 조인 조건문을 실행해야 하므로 where 를 추가한다. -->
+  	
+  	<include refid="search"/>
+ 	 
+ 	  <if test="word != null and word.toString() != '' ">
+ 	 	and
+ 	 </if>
+<!--  	 검색한 단어가 있을 경우, 아래 조건문을 추가로 실행해야 하므로 and를 추가한다. -->
+ 	 
+ 	 <if test="categoryNo != null and categoryNo != 0">
+		i.categoryNo = #{categoryNo} and
+	</if>
+ 	 
+ 	 	(i.itemNo = p.itemNo) and (i.categoryNo = c.categoryNo) 
+ 	 	and (sysdate between p.startDate and p.endDate)
+  	order by itemNo desc
+  	
+  	)
+)
+where rnum between #{startRow} and #{endRow}
+
+  </select>
+  <!--   list end -->
+  
+<!--   getTotalRow -->
+  <select id="getTotalRow" resultType="long">
+  
+  	select count(*) from item
+  	<include refid="search"/>
+<!--  search 쿼리 안에 word가 비어있지 않으면 where문이 들어있다. 그래서 word가 없을경우 
+추가처리를 아래에서 실행한다 -->
+	 
+	  <if test ="(word != null and word.toString() != '') and (categoryNo != null and categoryNo != 0)" >
+	  	and
+	  </if>
+	  
+	 <if test="(word == null or word =='') and (categoryNo != null and categoryNo != 0)" >
+ 	 	where 
+ 	 </if>
+	  
+  	
+  	
+	<if test="categoryNo != null and categoryNo != 0">
+		categoryNo = #{categoryNo}
+	</if>
+  	
+  </select>
+  <!--   getTotalRow end -->
+  
+  
+<sql id="search">
+<!-- 	word 프로퍼티가 비어있는지 아닌지를 확인하고, 비어있지 않은 때만 안의 key를 통해 검색한다. -->
+	<if test="word != null and word.toString() != '' ">
+		where 0 = 1
+		<if test = "key.toString().indexOf('n') >= 0 ">
+			or itemName like '%'||#{word}||'%'
+		</if>
+		<if test = "key.toString().indexOf('p') >= 0 ">
+			or producer like '%'||#{word}||'%'
+		</if>
+	
+	</if>
+
+
+
+
+</sql>  
+  
+  
+<!--   view -->
+    <select id ="view" resultType="com.bbosil.item.vo.ItemVO">
+  
+  select 
+	i.itemNo, i.itemName , i.itemImage, i.categoryNo, i.itemcontent,
+  	c.categoryName , i.writeDate, i.producer, i.hit, p.itemPrice, p.discount, p.rate
+ 	from 
+ 	 item i, category c, price p where i.itemNo = #{itemNo} and (i.itemNo = p.itemNo) and (i.categoryNo = c.categoryNo) 
+ 	 and (sysdate between p.startDate and p.endDate)
+
+  </select>
+<!--   view end-->
+  
+  
+  <update id="increase">
+  	update item set hit = hit + 1 where itemNo = #{itemNo} 
+  </update>
+  
+  
+  <insert id = "write">
+  
+  <selectKey keyProperty= "itemNo" resultType="long" order="BEFORE">
+  select item_seq.nextval from dual
+  </selectKey>
+
+  
+  
+  insert into item(itemNo,itemName,itemContent,itemImage,categoryNo,producer)
+  
+  values(#{itemNo}, #{itemName}, #{itemContent},
+  #{itemImage}, #{categoryNo}, #{producer})
+  
+  </insert>
+  
+  <insert id = "writePrice">
+  
+  insert into price(itemNo,priceNo
+  
+  <if test = 'startDate != null and startDate.toString() !="" '>,startDate</if>
+  <if test = 'endDate != null and endDate.toString() !="" '>,endDate</if>
+<!-- startDate와 endDate 값이 있을때만 sql에 해당 쿼리들을 추가한다. -->
+  
+  ,itemPrice,discount,rate)
+  
+  values(#{itemNo},price_seq.nextval
+  
+   <if test = 'startDate != null and startDate.toString() !="" '>,#{startDate}</if>
+  <if test = 'endDate != null and endDate.toString() !="" '>,#{endDate} </if>
+<!-- startDate와 endDate 값이 있을때만 sql에 해당 쿼리들을 추가한다. -->
+  
+   , #{itemPrice} , #{discount} , #{rate} )
+  </insert>
+  
+  
+<!--   상품정보 수정 -->
+  <update id="update">
+  
+  update item set itemName = #{itemName} , itemContent = #{itemContent} , itemImage = #{itemImage} ,
+  categoryNo = #{categoryNo} , producer = #{producer} 
+  where itemNo = #{itemNo}
+  
+  </update>
+  
+<!--   상품정보 삭제 -->
+  <delete id ="delete" >
+  
+  delete from item 
+  where itemNo = #{itemNo}
+  
+  </delete>
+  
+
+  
+<!--   가격 리스트 -->
+
+<select id = "priceList" resultType="com.bbosil.item.vo.PriceVO">
+
+select 
+	itemNo, priceNo, startDate, endDate, itemPrice, discount, rate
+
+from 
+	price
+
+where 
+	itemNo = #{itemNo}
+	
+</select>
+  
+<!--   가격 등록. 사용자가 시작일이나 종료일,할인가, 할인율을 입력하지 않았을 경우 default 값으로 세팅한다. -->
+<insert id ="priceWrite" >
+
+	insert into price(itemNo, priceNo
+	
+<if test="startDate != null and startDate.toString() != '' ">,startDate</if>
+<if test="endDate != null and endDate.toString() != '' ">,endDate</if>
+	
+	,itemPrice
+
+<if test="discount != null and discount.toString() != '' ">, discount</if>	 
+<if test="rate != null and rate.toString() != '' ">, rate</if>	 
+
+	 )
+	
+	values(#{itemNo},price_seq.nextval
+	
+<if test="startDate != null and startDate.toString() != '' ">,#{startDate}</if>
+<if test="endDate != null and endDate.toString() != '' ">,#{endDate}</if>	
+	
+	
+	, #{itemPrice}
+	
+	<if test="discount != null and discount.toString() != '' ">, #{discount}</if>	 
+<if test="rate != null and rate.toString() != '' ">, #{rate}</if>	 
+	)
+	
+</insert>
+
+<!-- 가격 수정 -->
+<update id= "priceUpdate" >
+	update price set startDate = #{startDate}, endDate = #{endDate}
+	, itemPrice = #{itemPrice}, discount = #{discount}, rate = #{rate}
+	
+	where priceNo = #{priceNo}
+</update>
+
+
+<!-- 가격 삭제 -->
+<delete id = "priceDelete" >
+
+	delete from price where priceNo = #{priceNo}
+
+</delete>
+
+
+<!--아래 네가지 태그의 입력받은 객체 속 startDate, endDate는 등록할 가격의 날짜정보다. -->
+
+<!--시작날짜가 겹치는 가격의 시작날짜를 새 등록가격의 종료날짜로 바꾼다. -->
+<update id = "sDatePush">
+	update price set startDate = #{endDate} 
+	
+	where itemNo = #{itemNo} and  (startDate between #{startDate} and #{endDate})
+	
+</update>
+
+<!-- 종료날짜가 겹치는 가격의 종료날짜를 새 등록가격의 시작날짜로 바꾼다. -->
+<update id = "eDatePush">
+	update price set endDate = #{startDate}
+	
+	where itemNo = #{itemNo} and (endDate between #{startDate} and #{endDate})
+</update>
+
+<!-- 시작,종료날짜가 겹치는 가격의 시작날짜를 새 가격의 종료날짜로, 종료날짜를 새 가격의 시작날짜로 바꾼다. -->
+<!-- <update id = "datesPush"> -->
+<!-- <![CDATA[ -->
+<!-- 	update price set startDate = #{endDate}, endDate = #{startDate} -->
+	
+<!-- 	where itemNo = #{itemNo} and ((startDate > #{startDate}) and (endDate < #{endDate}))  -->
+	
+<!-- 	]]> -->
+<!-- </update> -->
+
+
+<select id = "findWrapper" resultType="com.bbosil.item.vo.PriceVO">
+
+<![CDATA[
+select itemNo, priceNo, startDate, endDate, itemPrice, discount, rate
+
+	from price
+	
+	where itemNo = #{itemNo} and ((startDate < #{startDate}) and (endDate > #{endDate}))
+ 
+]]>
+</select>
+
+<update id = "wrapperPush">
+
+update price set endDate = #{startDate}
+
+where priceNo = #{priceNo} 
+
+</update>
+
+
+	<!-- 시작,종료날짜가 겹치는 가격의 시작날짜를 새 가격의 종료날짜로, 종료날짜를 새 가격의 시작날짜로 바꾼다. -->
+<insert id = "newDate">
+
+insert into price(itemNo, priceNo, startDate, endDate, itemPrice, discount, rate)
+
+values(#{itemNo},price_seq.nextval, #{startDate} , #{endDate}, #{itemPrice}, #{discount}, #{rate})
+
+</insert>
+
+  </mapper>

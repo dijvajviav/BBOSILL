@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbosil.orders.mapper.OrdersMapper">
+
+	<!-- list -->
+	<select id="list" resultType="com.bbosil.orders.vo.OrdersVO">
+		SELECT m.id, o.ono,
+		o.oDate,
+		o.status
+		FROM orders o
+		JOIN member m ON
+		m.id = o.id
+		AND m.id = #{id}
+		ORDER
+		BY o.ono DESC
+	</select>
+
+	<select id="detailList"
+		resultType="com.bbosil.orders.vo.OrderDetailVO">
+		select d.ono, d.odno, i.itemNo, i.itemImage, i.itemName,
+		p.itemPrice, d.count, d.optionName
+		from order_detail d
+		join orders o on d.ono = o.ono
+		join item i on d.itemNo = i.itemNo
+		join price p on p.itemNo = i.itemNo
+		where o.ono = #{ono}
+		order by d.odno asc
+	</select>
+
+	<!-- getTotalRow -->
+	<select id="getTotalRow" resultType="Long">
+		SELECT COUNT(*) FROM orders
+	</select>
+
+	<!-- view -->
+	<select id="view" resultType="com.bbosil.orders.vo.OrdersVO">
+		SELECT o.ono, o.id, o.name, o.tel,
+		o.deliveryCost, o.payment, o.request,
+		o.reason, o.address, o.oDate,
+		d.itemNo, o.status
+		FROM orders o
+		JOIN order_detail d ON o.ono = d.ono
+		JOIN item i ON d.itemNo = i.itemNo
+		WHERE o.ono = #{ono}
+	</select>
+
+	<!-- insert -->
+	<insert id="write">
+		<selectKey keyProperty="ono" resultType="long"
+			order="BEFORE">
+			SELECT orders_seq.nextval FROM dual
+		</selectKey>
+		INSERT INTO orders(ono, id, name, tel, deliveryCost, payment,
+		postalCode, address, detAddress, request)
+		VALUES (#{ono}, #{id},
+		#{name}, #{tel}, #{deliveryCost}, #{payment}, #{postalCode},
+		#{address}, #{detAddress}, #{request})
+	</insert>
+
+	<!-- insert -->
+	<insert id="detailWrite">
+		insert into order_detail(odno, ono, itemNo, count,
+		optionName)
+		(select order_detail_seq.nextval, #{ono}, itemNo, count,
+		optionNames from cart where id = #{id})
+	</insert>
+
+	<delete id="delete">
+		delete from cart where id = #{id}
+	</delete>
+
+	<!-- update -->
+	<update id="update">
+		UPDATE orders SET status = #{status}, reason =
+		#{reason} WHERE ono = #{ono}
+	</update>
+
+</mapper>

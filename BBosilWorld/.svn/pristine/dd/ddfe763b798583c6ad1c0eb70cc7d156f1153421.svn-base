@@ -1,0 +1,59 @@
+package com.bbosil.review.service;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import com.bbosil.review.mapper.ReviewMapper;
+import com.bbosil.review.vo.ReviewVO;
+import com.webjjang.util.page.PageObject;
+
+@Service
+public class ReviewService {
+	
+	@Inject
+	private ReviewMapper mapper;
+	
+	// list
+	
+	public List<ReviewVO> list(PageObject pageObject) {
+		
+		System.out.println("ReivewService.list() ..... ");
+		
+		// 페이지 처리를 위한 전체 데이터 개수
+		pageObject.setTotalRow(mapper.getTotalRow(pageObject));
+		
+		return mapper.list(pageObject);
+	}
+	
+	// view
+	
+	public ReviewVO view(Long no) {
+		
+		return mapper.view(no);
+	}
+	
+	// write
+	
+	public int write(ReviewVO vo) {
+		
+		return mapper.write(vo);
+	}
+	
+	// update
+	
+	public int update(ReviewVO vo) {
+		
+		return mapper.update(vo);
+	}
+	
+	// delete
+	
+	public int delete(ReviewVO vo) {
+		
+		return mapper.delete(vo);
+	}
+
+}

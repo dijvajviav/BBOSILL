@@ -1,0 +1,133 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>주문하기</title>
+<!-- Bootstrap CSS -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<!-- jQuery -->
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- Bootstrap JavaScript -->
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script
+	src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+	function sample6_execDaumPostcode() { // 함수 이름 수정
+		new daum.Postcode(
+				{
+					oncomplete : function(data) {
+						var address = '';
+
+						if (data.userSelectedType === 'R') {
+							address = data.roadAddress;
+						} else {
+							address = data.jibunAddress;
+						}
+
+						document.getElementById('sample6_postcode').value = data.zonecode;
+						document.getElementById('sample6_address').value = address;
+						document.getElementById('sample6_detailAddress')
+								.focus();
+					}
+				}).open();
+	}
+</script>
+
+</head>
+<body>
+	<div class="container">
+		<h1>주문하기</h1>
+
+		<!-- 상품 정보 표시 테이블 -->
+		<table class="table">
+			<thead>
+				<tr>
+					<th>상품 정보</th>
+					<th>수량</th>
+					<th>단가</th>
+					<th>할인가</th>
+					<th>총금액</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- 여러 상품에 대한 정보 출력 -->
+				<c:forEach items="${list}" var="orderDetail">
+					<tr>
+						<td style="display: none;"></td>
+						<td><img src="${orderDetail.itemImage}" alt="itemImage"
+							style="width: 50px;">&nbsp;&nbsp;${orderDetail.itemName}(${orderDetail.optionnames})</td>
+						<td>${orderDetail.count}</td>
+						<td>${orderDetail.itemPrice}</td>
+						<td>0</td>
+						<td>${(orderDetail.itemPrice * orderDetail.count) + 3000}</td>
+					</tr>
+				</c:forEach>
+			</tbody>
+		</table>
+		<!-- 주문 양식 -->
+		<form action="/orders/write.do" method="post" id="orderForm">
+			<!-- 주문서와 관련된 정보 추가 -->
+			<div class="form-group">
+				<label for="name">수령인 :</label> <input type="text"
+					class="form-control" id="name" name="name" required>
+			</div>
+			<div class="form-group">
+				<label for="telBox1">연락처 :</label>
+				<div class="row">
+						<input type="text" class="form-control" id="tel" name="tel"
+							required>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="payment">결제수단 :</label> <select class="form-control"
+					id="payment" name="payment" required>
+					<option value="1">카드결제</option>
+					<option value="2">계좌이체</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="postalCode">우편번호:</label> <input type="text"
+					class="form-control" id="sample6_postcode" name="postalCode"
+					placeholder="우편번호">
+				<button type="button" onclick="sample6_execDaumPostcode()"
+					value="우편번호 찾기">우편번호 찾기</button>
+			</div>
+
+			<div class="form-group">
+				<label for="address">주소:</label> <input type="text"
+					class="form-control" id="sample6_address" name="address"
+					placeholder="주소">
+			</div>
+
+			<div class="form-group">
+				<label for="detailAddress">상세주소:</label> <input type="text"
+					class="form-control" id="sample6_detailAddress" name="detAddress"
+					placeholder="상세주소">
+			</div>
+			<div class="form-group">
+				<label for="request">요청사항 :</label>
+				<textarea class="form-control" id="request" name="request"></textarea>
+			</div>
+			<input type="hidden" name="id" value="${login.id}">
+			<input type="hidden" name="deliveryCost" value="3000">
+			<input type="hidden" name="perPageNum" value="10">
+			<c:forEach items="${list}" var="orderVO">
+				<input type="hidden" name="itemNo" value="${orderVO.itemNo}">
+				<input type="hidden" name="itemImage" value="${orderVO.itemImage}">
+				<input type="hidden" name="itemName" value="${orderVO.itemName}">
+				<input type="hidden" name="optionNo" value="${orderVO.optionnames}">
+				<input type="hidden" name="count" value="${orderVO.count}">
+				<input type="hidden" name="oPrice" value="${orderVO.itemPrice * orderVO.count}">
+			</c:forEach>
+
+			<button type="submit" class="btn btn-primary">주문하기</button>
+		</form>
+	</div>
+</body>
+</html>

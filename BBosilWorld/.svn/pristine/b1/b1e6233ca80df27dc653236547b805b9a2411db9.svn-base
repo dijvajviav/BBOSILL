@@ -1,0 +1,157 @@
+insert into grade values(1,'회원'); -- 1번은 회원등급을 갖는다.
+insert into grade values(9, '관리자'); -- 9번은 관리자등급을 갖는다.
+
+insert into member(id, pw, email, name, birth, tel, postalcode, address, detail_address, gradeNo) 
+values('Admin','Admin123', 'Admin@naver.com', '관리자', '1998-12-21', '010-2090-9807', '99999', '의정부시 이젠 컴퓨터', '24인치 LED 모니터 앞 방석 있는 의자', 9);
+
+insert into member(id, pw, email, name, birth, tel, postalcode, address, detail_address) 
+values('test','test123', 'test@naver.com', '회원1', '1998-12-21', '010-1111-1111', '11111', '회원시 회원빌딩', '201호 문 옆면 바로 앞 책상');
+
+insert into member(id, pw, email, name, birth, tel, postalcode, address, detail_address) 
+values('1111','1111', '1111@naver.com', '회원님', '1998-12-21', '010-1111-1111', '11111', '회원시 회원빌딩', '111호 문 옆면 바로 앞 책상');
+
+insert into member(id, pw, email, name, birth, tel, postalcode, address, detail_address, gradeNo) 
+values('9999','9999', 'Admin1@naver.com', '관리자님', '1999-12-21', '010-2090-9807', '99999', '의정부시 이젠 컴퓨터의 컴퓨터', '24인치 LED 모니터 앞 방석 있는 의자의 의자', 9);
+
+insert into member(id, pw, email, name, birth, tel, postalcode, address, detail_address, gradeNo) 
+values('ckrhksgh555','ckrhksgh5555', 'ckrhksgh555@naver.com', '차관호', '1999-12-21', '010-2090-9807', '12345', '무슨빌딩13층', '맨앞줄', 1);
+
+insert into member(id, pw, name, birth, tel, email, postalcode, address, detail_address)
+values ('catlover', '1111', '고양이러버','1995-01-01', '010-0000-0001', 'catlover@webjjang.com', '12345', '고양이러버시 고양이러버동', '고양이러버 1호');
+
+insert into member(id, pw, name, birth, tel, email, postalcode, address, detail_address)
+values ('cataqua', '1111', '아쿠아짱','1995-01-01', '010-0000-0002', 'cataqua@webjjang.com', '67890', '아쿠아짱시 아쿠아짱동', '아쿠아짱 1호');
+
+insert into member(id, pw, name, birth, tel, email, postalcode, address, detail_address)
+values ('catzzang', '1111', '고양이짱', '1995-01-01', '010-0000-0003', 'catzzang@webjjang.com', '98766', '고양이짱시 고양이짱동', '고양이짱 1호');
+
+insert into coupon(couponNo, couponName, discountValue) 
+values(coupon_seq.nextval, '3000원 할인 쿠폰', 3000);
+insert into coupon(couponNo, couponName, discountValue) 
+values(coupon_seq.nextval, '5000원 할인 쿠폰', 5000);
+insert into coupon(couponNo, couponName, discountValue) 
+values(coupon_seq.nextval, '10000원 할인 쿠폰', 10000);
+
+insert into member_coupon(id, couponNo) values('1111',2);
+insert into member_coupon(id, couponNo) values('1111',3);
+
+INSERT INTO cart (cno, itemNo, id, count) VALUES (cart_seq.nextval, 1, '1111', 1);
+INSERT INTO cart (cno, itemNo, id, count) VALUES (cart_seq.nextval, 2, '1111', 2);
+INSERT INTO cart (cno, itemNo, id, count) VALUES (cart_seq.nextval, 4, '1111', 3);
+INSERT INTO cart (cno, itemNo, id, count) VALUES (cart_seq.nextval, 9, '1111', 1);
+INSERT INTO cart (cno, itemNo, id, count) VALUES (cart_seq.nextval, 8, '1111', 2);
+
+
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'메들리 그레이비 ','특제 소스의 독특한 식감으로 애묘의 기호성을 높였습니다. ','/upload/items/gravy.png',3,'이나바');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'논 그레이비 ','알레르기성 성분을 전부 제거한 맛돌사료. ','/upload/items/논그레이비.png',3,'이나바');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'냥타클로스 ','겨울철 추위타는 냥이들을 위한 옷. ','/upload/items/냥타클로스.png',1,'키튼클로즈');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'냥이 발쿠션 ','손시려운 고양이들을 위한 양말. ','/upload/items/냥이발쿠션.png',1,'키튼클로즈');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'냥츄르 ','고양이가 제일 좋아하는 향만 모아넣은 최고의 츄르 ','/upload/items/냥츄르.png',1,'이나바');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'일반 사료 ','무난한 선택지의 사료. ','/upload/items/일반사료.png',2,'이나바');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'고양이 파티용품 ','고양이를 위한 생일용품. ','/upload/items/파티용품.png',7,'키튼클로즈');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'러브카니캔 ','고양이가 아침마다 달라고 하는 그 생선캔!. ','/upload/items/러브카니캔.png',3,'이나바');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'화장실패드','매너넘치는 고양이를 위한 공간을 만들어주세요. ','/upload/items/화장실패드.png',4,'캐츠테크');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'칸타타참치필렛','냥이 뱃살도 적게 늘리면서 맛까지 챙긴 1등품!. ','/upload/items/partyCat.png',3,'이나바');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'등교냥이 ','학생고양이를 위한 필수 복장. ','/upload/items/등교냥이.png',6,'캐츠테크');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'츄르냥이 ','고양이를 위한 삭제. ','/upload/items/츄르냥이.png',3,'이나바');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'고양이낚싯대','고양이의 찹쌀떡이 쉬지않고 움직이는 것을 보고싶다면 당장 구매하세요!. ','/upload/items/partyCat.png',6,'고양아놀자');
+Insert Into Item(Itemno,Itemname,Itemcontent,Itemimage,Categoryno,Producer)
+Values(Item_Seq.Nextval,'아우터 조인을 해내셧군요 ','가격정보는 따로 없습니다. ','/upload/items/partyCat.png',7,'키튼클로즈');
+
+select priceNo, startDate, endDate,itemPrice,discount,rate from price where itemNo =4;
+ insert into price(priceNo,itemNo,itemprice,StartDate,endDate)
+values(price_seq.nextval,4,1300,'2123/11/30','2124/12/30');
+
+insert into price(priceNo,itemNo,itemprice,StartDate,endDate)
+values(price_seq.nextval,1,20000,'2023/11/16','2024/11/30');
+insert into price(priceNo,itemNo,itemprice,StartDate,endDate)
+values(price_seq.nextval,2,5200,'2023/10/16','2024/11/16');
+insert into price(priceNo,itemNo,itemprice,StartDate,endDate)
+values(price_seq.nextval,3,13000,'2023/11/16','2024/11/30');
+insert into price(priceNo,itemNo,itemprice)
+values(price_seq.nextval,4,1560);
+insert into price(priceNo,itemNo,itemprice,StartDate,endDate)
+values(price_seq.nextval,5,1200,'2023/11/30','2024/12/30');
+insert into price(priceNo,itemNo,itemprice)
+values(price_seq.nextval,6,12560);
+insert into price(priceNo,itemNo,itemprice)
+values(price_seq.nextval,7,1330);
+insert into price(priceNo,itemNo,itemprice)
+values(price_seq.nextval,8,1330);
+insert into price(priceNo,itemNo,itemprice)
+values(price_seq.nextval,9,1330);
+insert into price(priceNo,itemNo,itemprice)
+values(price_seq.nextval,10,1330);
+insert into price(priceNo,itemNo,itemprice)
+values(price_seq.nextval,11,1330);
+insert into price(priceNo,itemNo,itemprice)
+values(price_seq.nextval,12,1330);
+insert into price(priceNo,itemNo,itemprice)
+values(price_seq.nextval,12,1330);
+insert into price(priceNo,itemNo,itemprice)
+values(price_seq.nextval,13,1330);
+
+
+INSERT INTO CATEGORY(categoryNo,categoryName)
+Values (category_seq.nextval,'옷');
+INSERT INTO CATEGORY(categoryNo,categoryName)
+Values (category_seq.nextval,'사료');
+INSERT INTO CATEGORY(categoryNo,categoryName)
+Values (category_seq.nextval,'간식');
+INSERT INTO CATEGORY(categoryNo,categoryName)
+Values (category_seq.nextval,'건강 관리');
+INSERT INTO CATEGORY(categoryNo,categoryName)
+Values (category_seq.nextval,'목욕');
+INSERT INTO CATEGORY(categoryNo,categoryName)
+Values (category_seq.nextval,'장난감');
+INSERT INTO CATEGORY(categoryNo,categoryName)
+Values (category_seq.nextval,'잡화');
+
+
+insert into optiontype
+values(optiontype_seq.nextval, '사이즈');
+insert into optiontype
+values(optiontype_seq.nextval, '맛');
+insert into optiontype
+values(optiontype_seq.nextval, '색상');
+
+insert into orders(ono, id, name, tel, deliveryCost, payment, postaCode, address, detAddress, status, request, reason)
+VALUES (1, '1111', '1111', '010-1234-1234', 3000, 1, 12345, 'ㅇㅇ시 ㅇㅇ동 ㅇㅇ아파트', '101동 101호', 1, '빠른배송부탁해요','');
+
+insert into order_detail(odno, ono, itemNo, count)
+values(1, 1, 1, 1);
+
+
+
+insert into notice(no, title, content)
+values(notice_seq.nextval, '사은품 혜택 변경 안내', '4만원 이상 구매 시 부터 랜덤 사은품 지급으로 변경됩니다.');
+insert into notice(no, title, content, startDate, endDate)
+values(notice_seq.nextval, '설날연휴 배송 안내', '2월5일(월)17시 이후 결제 완료건은 택배사 사정에 따라 배송이 지연될 수 있습니다.','2024-01-29','2024-02-05');
+insert into notice(no, title, content, startDate, endDate)
+values(notice_seq.nextval, '[24년 1월 이벤트] ★사은품★ 증정 안내', '5만원 이상 구매시 포스터 증정. 많은 참여 바랍니다. ','2024-01-01','2024-01-31');
+insert into notice(no, title, content)
+values(notice_seq.nextval, '적립금 소멸 안내', '적립금은 최소 1년, 최대 2년의 유효기간을 가지며, 이후 일괄 소멸됩니다. ');
+insert into notice(no, title, content, startDate, endDate)
+values(notice_seq.nextval, '홈페이지 리뉴얼 이벤트', 'SNS에서 가장 많이 입소문을 내신 분들(3명)께 푸짐한 선물을 드립니다. ','2024-02-08','2024-02-29');
+
+
+insert into review(no, rating, ment,itemNo, itemImage, itemName, content, fileName, id)
+values(review_seq.nextval, 5, '아주 좋아요',1,'/upload/items/gravy.jpg','메들리 그레이비 ','고양이가 잘 먹어요~ 유명해서 사봤는데 여기로 정착하려구요.', '/upload/reviewImage/image1.jpg', 'catlover');
+insert into review(no, rating, ment,itemNo, itemImage, itemName, content, fileName, id)
+values(review_seq.nextval, 3, '그저 그래요',2,'/upload/items/Ngravy.jpg','논 그레이비 ','품질은 좋아보이는데 가격에 비해 양이 좀 적네요...', '/upload/reviewImage/image2.jpg', 'catlover');
+insert into review(no, rating, ment,itemNo, itemImage, itemName, content, fileName, id)
+values(review_seq.nextval, 1, '별로에요',3,'/upload/items/CatClaus.jpg','냥타클로스 ','급해서 산거라 큰 기대 안 했는데 퀄리티가 너무 떨어지네요. 실망이에요.', '/upload/reviewImage/image3.jpg', 'cataqua');
+

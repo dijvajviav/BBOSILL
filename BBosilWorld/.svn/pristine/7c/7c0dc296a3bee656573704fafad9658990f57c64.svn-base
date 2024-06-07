@@ -1,0 +1,57 @@
+package com.bbosil.notice.service;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import com.bbosil.notice.mapper.NoticeMapper;
+import com.bbosil.notice.vo.NoticeVO;
+import com.webjjang.util.page.PageObject;
+
+@Service
+public class NoticeService {
+	
+	@Inject
+	private NoticeMapper mapper;
+	
+	// list
+	
+	public List<NoticeVO> list(PageObject pageObject) {
+		System.out.println("NoticeService.list() ..... ");
+		
+		// 페이지 처리를 위한 전체 데이터 개수
+		pageObject.setTotalRow(mapper.getTotalRow(pageObject));
+		
+		return mapper.list(pageObject);
+	}
+		
+	
+	// view
+	public NoticeVO view(Long no) {
+		
+		return mapper.view(no);
+		
+	}
+		
+		
+	// write
+	public int write(NoticeVO vo) {
+		
+		return mapper.write(vo);
+	
+	}
+	
+	// update
+	public int update(NoticeVO vo) {
+		
+		return mapper.update(vo);
+	}
+
+	// delete
+	public int delete(NoticeVO vo) {
+		
+		return mapper.delete(vo);
+	}
+}

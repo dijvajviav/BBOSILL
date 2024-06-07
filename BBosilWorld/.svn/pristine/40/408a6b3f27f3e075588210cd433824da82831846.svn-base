@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbosil.review.mapper.ReviewMapper">
+	<!-- list(), getTotalRow(), view(), write(), update(), changeFile(), delete() -->
+
+	<!-- list -->
+	<select id="list" resultType="com.bbosil.review.vo.ReviewVO">
+	<!-- Mybatis가 해석하지 말고 문자 그대로 넘겨라. : CDATA -->
+	<![CDATA[
+    select no, id, name, content, writeDate, updateDate, rating, ment, adminreply, fileName,
+    itemNo, itemImage, itemName
+    from (
+        select /*+ INDEX(review IDX_REVIEW_NO_DESC) */
+               rownum rnum, r.no, m.id, m.name, r.content, r.writeDate, 
+               r.updateDate, r.rating, r.ment, r.adminreply, r.fileName, 
+               i.itemNo, i.itemImage, i.itemName
+        from review r, member m, item i
+        where (r.id = m.id) and (r.itemNo = i.itemNo)
+        )
+		where rnum between #{startRow} and #{endRow}
+    
+]]>
+	</select>
+	
+	
+	
+	
+	<!-- getTotalRow -->
+	<select id="getTotalRow" resultType="Long">
+	
+	<![CDATA[
+		select count(*)
+	    from
+	        review r, member m, item i
+	    where (r.id = m.id) and (r.itemNo = i.itemNo)
+	]]>
+		
+	</select>
+	
+	<!-- 리스트에 검색을 적용 시키는 쿼리 따로 만들어 준다. - list와  getTotalRow에 포함시켜서 사용. -->
+	<sql id="search">
+		<!-- word의 데이터가 존재할 때만 검색을 한다. -->
+		<if test="word !=null and word != ''.toString()">
+			<!-- 1=0 앞에 조건으로 붙인 것은 뒤에 or 연산자를 이어 붙인다. -->
+			where ( 1 = 0
+				<if test='key.toString().indexOf("t") >= 0'>
+					or title like '%' || #{word} || '%'
+				</if>
+				<if test='key.toString().indexOf("c") >= 0'>
+					or content like '%' || #{word} || '%'
+				</if>
+				<if test='key.toString().indexOf("i") >= 0'>
+					or id like '%' || #{word} || '%'
+				</if>
+				<if test='key.toString().indexOf("f") >= 0'>
+					or fileName like '%' || #{word} || '%'
+				</if>
+			)
+		</if>
+	</sql>
+	
+	<!-- view -->
+	<select id="view" resultType="com.bbosil.review.vo.ReviewVO">
+	
+		select no, id, name, content, writeDate, updateDate, rating, ment, adminreply, fileName, itemNo, itemImage, itemName
+		from review, member, item
+		where no = #{no}
+		
+	</select>
+	
+	<!-- 상품 등록 insert : 1. write하고 2. writePrice를 진행한다. -->
+	<insert id="write">
+		<!-- insert 하기전에 seq에서 키를 먼저 받아온다.(select) -> vo.no에 넣는다. -->
+		<selectKey keyProperty="no" resultType="long" order="BEFORE">
+			select review_seq.nextval from dual
+		</selectKey>
+		<!-- 위에서 키에 해당되는 글번호를 받아 와서 글번호(vo.no)에 저장했으므로 그것을 사용한다. -->
+		insert into review(no, itemNo, id, rating, content, fileName)
+		values (#{no}, #{itemNo}, #{id}, #{rating},
+		 #{content}, #{fileName})
+	</insert>
+	
+<!-- 	<insert id="writePrice"> -->
+<!-- 		insert into price(pno, gno, std_price, discount, rate, startDate, endDate) -->
+<!-- 		values (price_seq.nextval, #{gno}, #{stdPrice}, #{discount}, #{rate}, -->
+<!-- 		 #{startDate}, #{endDate}) -->
+<!-- 	</insert> -->
+	
+	
+	<!-- update : 텍스트 정보만 변경 -->
+	<update id="update">
+		update review
+		set
+			rating = #{rating},
+			content = #{content},
+			fileName = #{fileName}
+		where
+			no = #{no}
+	</update>
+
+	<!-- changeFile : 파일 정보 변경 처리 -->
+	<update id="updateAdminreply">
+		update review
+		set
+			adminreply = #{adminreply}
+		where
+			no = #{no}
+	</update>
+
+	<!-- delete -->
+	<delete id="delete">
+		delete from review
+		where
+			no = #{no} and id = #{id}
+	</delete>	
+	
+	<!-- addScore -->
+	<insert id="addScore">
+		insert into review_score(no, id, rating)
+		values (#{no}, #{id}, #{rating})
+	</insert>
+	
+</mapper>

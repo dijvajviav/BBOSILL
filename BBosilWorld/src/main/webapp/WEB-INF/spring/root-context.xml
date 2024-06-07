@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	<!-- 네임스페이스에서 사용할 수 있는 태그를 정의해놓은 공간. -->
+
+
+	<!-- Hikariconfig : 설정 - 드라이버 , 서버 URL, ID, PW - setter : property -->
+	<!-- bean 태그 이용해서 객체 생성 -->
+	<!-- 외부 라이브러리 파일을 직접 수정할 수는 없어서 해당 객체를 bean 안에 저장해서 값을 세팅할 수 있다. -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<!-- <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"></property> -->
+		<!-- <property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:XE"></property> -->
+		<!-- log4j2 사용을 위해서 변경해서 적용한 driverClassName, jdbcUrl -->
+		<property name="driverClassName"
+			value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
+		<property name="jdbcUrl"
+			value="jdbc:log4jdbc:oracle:thin:@localhost:1521:xe"></property>
+
+		<property name="username" value="javajava"></property>
+		<property name="password" value="javajava"></property>
+
+		<!-- <property> 태그는 VO객체의 setter로 해당객체의 값을 세팅하는 것과 같다. ex) jdbcUrl이 이름인 
+			property는 setJdbcUrl 메서드를 통해 "jdbc~XE" 값을 세팅하는 것이다. -->
+	</bean>
+
+
+	<!-- connection 처리를 하는 CP 객체 생성 - 설정 객체 필요 -->
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource"
+		destroy-method="close">
+		<constructor-arg ref="hikariConfig" />
+	</bean>
+	
+	
+	<!-- 생성자 매개변수(arg)로 전달 -->
+
+	<!-- MyBatis 객체 생성과 설정 -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- MyBatis 범위 설정. 이 안에 정해진 형식대로 쓰여있는 인터페이스  스캔할 package 범위 넣어주기. 그 아래 패키지도
+	모두 검색한다.-->
+	
+	<bean id ="transactionManager" class= "org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<property name ="dataSource" ref = "dataSource"></property>
+	</bean>
+	<tx:annotation-driven/>
+	
+	<mybatis-spring:scan base-package="com.bbosil" />
+	
+	<!-- 지정된 패키지를 스캔해서 bean을 등록할 수 있다. -->
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<context:component-scan
+		base-package="com.bbosil" />
+		
+		
+<!-- 	회원관리에서 이메일 인증시 이메일을 발송하는데 사용합니다	 -->
+<!-- mail.properties 파일 위치 설정 -->
+<context:property-placeholder location="classpath:mail.properties" />
+
+<!-- JavaMailSender 빈 설정 -->
+<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="host" value="${mail.smtp.host}" />
+    <property name="port" value="${mail.smtp.port}" />
+    <property name="username" value="${mail.username}" />
+    <property name="password" value="${mail.password}" />
+    
+    <property name="javaMailProperties">
+        <props>
+            <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
+            <prop key="mail.smtp.starttls.enable">${mail.smtp.starttls.enable}</prop>
+        </props>
+    </property>
+</bean>
+<!-- 	회원관리에서 이메일 인증시 이메일을 발송하는데 사용합니다	 -->
+		
+		
+</beans>

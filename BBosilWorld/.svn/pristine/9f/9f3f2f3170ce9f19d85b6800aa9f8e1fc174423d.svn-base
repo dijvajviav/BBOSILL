@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbosil.notice.mapper.NoticeMapper">
+
+	<!-- list -->
+	<select id="list" resultType="com.bbosil.notice.vo.NoticeVO">
+		select no, title, writeDate
+		from (
+			select
+				/*+ INDEX(notice IDX_NOTICE_NO_DESC) */
+				rownum rnum, no, title, writeDate
+			from notice
+			<include refid="search" />
+		)
+		where rnum between #{startRow} and #{endRow}
+		
+	</select>
+	
+	<!-- getTotalRow -->
+	<select id="getTotalRow" resultType="Long">
+	
+		select count(*)
+		from notice
+		<include refid="search" />
+		
+	</select>
+	
+	<!-- 리스트에 검색을 적용 시키는 쿼리 따로 만들어 준다. - list와  getTotalRow에 포함시켜서 사용. -->
+	<sql id="search">
+		<!-- word의 데이터가 존재할 때만 검색을 한다. -->
+		<if test="word !=null and word != ''.toString()">
+			<!-- 1=0 앞에 조건으로 붙인 것은 뒤에 or 연산자를 이어 붙인다. -->
+			where ( 1 = 0
+				<if test='key.toString().indexOf("t") >= 0'>
+					or title like '%' || #{word} || '%'
+				</if>
+				<if test='key.toString().indexOf("c") >= 0'>
+					or content like '%' || #{word} || '%'
+				</if>
+				<if test='key.toString().indexOf("w") >= 0'>
+					or id like '%' || #{word} || '%'
+				</if>
+			)
+		</if>
+	</sql>
+	
+	<!-- view -->
+	<select id="view" resultType="com.bbosil.notice.vo.NoticeVO">
+	
+		select no, title, content, writeDate
+		from notice
+		where no = #{no}
+		
+	</select>
+	
+<!-- 조회수 1 증가. increase() -->
+<!-- 	<update id="increase"> -->
+	
+<!-- 		update notice -->
+<!-- 		set hit = hit + 1 -->
+<!-- 		where no = #{no} -->
+	
+<!-- 	</update> -->
+	
+	<!-- 글등록 insert -->
+<!-- 	<insert id="write"> -->
+<!-- 		insert into notice(no, title, content) -->
+<!-- 		values (notice_seq.nextval, #{title}, #{content}) -->
+<!-- 	</insert> -->
+
+
+	<insert id="write">
+		<!-- insert 하기전에 seq에서 키를 먼저 받아온다.(select) -> vo.no에 넣는다. -->
+		<selectKey keyProperty="no" resultType="long" order="BEFORE">
+			select notice_seq.nextval from dual
+		</selectKey>
+		<!-- 위에서 키에 해당되는 글번호를 받아 와서 글번호(vo.no)에 저장했으므로 그것을 사용한다. -->
+		insert into notice(no, title, content)
+		values (#{no}, #{title}, #{content})
+	</insert>
+	
+	<!-- update -->
+	<update id="update">
+		update notice
+		set
+			title = #{title},
+			content = #{content},
+			id = #{id}
+		where
+			no = #{no} and pw = #{pw}
+	</update>
+
+	<!-- delete -->
+	<delete id="delete">
+		delete from notice
+		where
+			no = #{no} and pw = #{pw}
+	</delete>	
+</mapper>

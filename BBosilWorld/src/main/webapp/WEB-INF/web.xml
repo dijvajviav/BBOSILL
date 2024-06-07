@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee https://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+
+	<!-- 인코딩 필터 . 이미 springframework 라이브러리 안에 존재하는 클래스를 사용하면 된다. 
+	중간에 끼어들어서 어떠한 처리를 하는 프로그램 : AOP프로그램 -->
+
+	<filter> 
+    <filter-name>encodingFilter</filter-name> 
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class> 
+    <init-param> 
+       <param-name>encoding</param-name> 
+       <param-value>UTF-8</param-value> 
+    </init-param> 
+    <init-param> 
+       <param-name>forceEncoding</param-name> 
+       <param-value>true</param-value> 
+    </init-param> 
+ </filter> 
+ <filter-mapping> 
+    <filter-name>encodingFilter</filter-name> 
+    <url-pattern>/*</url-pattern> 
+ </filter-mapping>
+ 
+ 
+<!--  sitemesh filter -->
+
+<filter>
+
+<description>사이트에 레이아웃을 잡는 필터 처리</description>
+
+<filter-name>sitemesh</filter-name>
+
+<filter-class>com.opensymphony.sitemesh.webapp.SiteMeshFilter</filter-class>
+
+</filter>
+
+ <filter>
+  <description>권한처리</description>
+  <filter-name>authFilter</filter-name>
+  <filter-class>com.bbosil.util.filter.AuthorityFilter</filter-class>
+ </filter>
+ 
+  <filter-mapping>
+  <filter-name>authFilter</filter-name>
+  <url-pattern>*.do</url-pattern>
+ </filter-mapping>
+
+<filter-mapping>
+
+<filter-name>sitemesh</filter-name>
+
+<url-pattern>*.do</url-pattern>
+
+</filter-mapping>
+
+
+​
+
+	<!-- The definition of the Root Spring Container shared by all Servlets and Filters -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/spring/root-context.xml</param-value>
+	</context-param>
+	
+	<!-- Creates the Spring Container shared by all Servlets and Filters -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!-- Processes application requests -->
+	<servlet>
+		<servlet-name>appServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/spring/appServlet/servlet-context.xml</param-value>
+		</init-param>
+		<init-param>
+			<param-name>throwExceptionIfNoHandlerFound</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+		
+	<servlet-mapping>
+		<servlet-name>appServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+<!-- 	오류처리 : Spring ControllerAdvice로 500번 404번 처리 완료. JSP 없는 404 처리를 해야만 한다.-->
+	<error-page>
+		<error-code>404</error-code>
+		<location>/WEB-INF/views/error/noJSP.jsp</location>
+	</error-page>
+	
+
+</web-app>

@@ -1,0 +1,209 @@
+-- 테이블 삭제
+DROP TABLE order_detail CASCADE CONSTRAINTS;
+DROP TABLE orders CASCADE CONSTRAINTS;
+DROP TABLE review CASCADE CONSTRAINTS;
+DROP TABLE ItemOption CASCADE CONSTRAINTS;
+DROP TABLE OptionValue CASCADE CONSTRAINTS;
+DROP TABLE price CASCADE CONSTRAINTS;
+DROP TABLE cart CASCADE CONSTRAINTS;
+DROP TABLE member_coupon CASCADE CONSTRAINTS;
+DROP TABLE item CASCADE CONSTRAINTS;
+DROP TABLE member CASCADE CONSTRAINTS;
+DROP TABLE coupon CASCADE CONSTRAINTS;
+DROP TABLE optionType CASCADE CONSTRAINTS;
+DROP TABLE category CASCADE CONSTRAINTS;
+DROP TABLE grade CASCADE CONSTRAINTS;
+DROP TABLE notice CASCADE CONSTRAINTS;
+
+-- 시퀀스 삭제
+DROP SEQUENCE orders_seq;
+DROP SEQUENCE order_detail_seq;
+DROP SEQUENCE review_seq;
+DROP SEQUENCE cart_seq;
+DROP SEQUENCE coupon_seq;
+DROP SEQUENCE item_seq;
+DROP SEQUENCE price_seq;
+DROP SEQUENCE category_seq;
+DROP SEQUENCE optionType_seq;
+DROP SEQUENCE OptionValue_seq;
+DROP SEQUENCE notice_seq;
+
+
+CREATE SEQUENCE coupon_seq;
+CREATE SEQUENCE cart_seq;
+CREATE SEQUENCE item_seq;
+CREATE SEQUENCE price_seq;
+CREATE SEQUENCE category_seq;
+CREATE SEQUENCE optionType_seq;
+CREATE SEQUENCE OptionValue_seq;
+CREATE SEQUENCE orders_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE order_detail_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE review_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE notice_seq START WITH 1 INCREMENT BY 1;
+
+
+CREATE TABLE grade
+(
+    gradeNo NUMBER(1) PRIMARY KEY,
+    gradeName VARCHAR2(20) NOT NULL
+);
+
+CREATE TABLE category
+(
+    categoryNo NUMBER PRIMARY KEY,
+    categoryName VARCHAR2(300)
+);
+
+CREATE TABLE coupon
+(
+    couponNo NUMBER PRIMARY KEY,
+    couponName VARCHAR2(100) NOT NULL UNIQUE,
+    discountValue NUMBER NOT NULL
+);
+
+CREATE TABLE optionType
+(
+    optionNo NUMBER PRIMARY KEY,
+    optionType VARCHAR2(30) NOT NULL
+);
+
+
+
+
+
+
+
+CREATE TABLE member
+(
+    id VARCHAR2(70) PRIMARY KEY,
+    pw VARCHAR2(20) NOT NULL CHECK(REGEXP_LIKE(pw,'^[a-zA-Z0-9]+$')),
+    email VARCHAR2(50) NOT NULL UNIQUE,
+    name VARCHAR2(15) NOT NULL,
+    birth DATE NOT NULL,
+    tel VARCHAR2(13) CHECK(REGEXP_LIKE(tel, '^[0-9]{3}-[0-9]{4}-[0-9]{4}$')),
+    postalcode VARCHAR2(10) NOT NULL,
+    address VARCHAR2(200) NOT NULL,
+    detail_address VARCHAR2(100) NOT NULL,
+    status VARCHAR2(6) DEFAULT '정상' CHECK (status IN ('정상', '탈퇴')),
+    gradeNo NUMBER(1) DEFAULT 1 REFERENCES grade(gradeNo) NOT NULL
+);
+
+CREATE TABLE item
+(
+    itemNo NUMBER PRIMARY KEY,
+    itemName VARCHAR2(300) NOT NULL UNIQUE,
+    itemContent VARCHAR2(2000) NOT NULL,
+    itemImage VARCHAR2(500),
+    categoryNo NUMBER REFERENCES category(categoryNo) ON DELETE SET NULL,
+    writeDate DATE DEFAULT SYSDATE,
+    producer VARCHAR2(100) NOT NULL,
+    hit NUMBER DEFAULT 0
+);
+
+CREATE TABLE OptionValue
+(
+    optionValueNo NUMBER NOT NULL,
+    optionNo NUMBER NOT NULL,
+    optionValue VARCHAR2(100) NOT NULL,
+    CONSTRAINT XPK옵션값 PRIMARY KEY (optionValueNo),
+    CONSTRAINT oValue_oNo FOREIGN KEY (optionNo) REFERENCES OptionType(optionNo) ON DELETE CASCADE
+);
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE cart
+(
+    cno NUMBER PRIMARY KEY,
+    itemNo NUMBER REFERENCES item(itemNo) ON DELETE CASCADE NOT NULL,
+    id VARCHAR2(20) REFERENCES member(id) ON DELETE CASCADE NOT NULL,
+    optionnames VARCHAR2(70),
+    count NUMBER NOT NULL
+);
+
+CREATE TABLE member_coupon
+(
+    id VARCHAR2(20) REFERENCES member(id) ON DELETE CASCADE NOT NULL,
+    couponNo NUMBER REFERENCES coupon(couponNo) ON DELETE CASCADE NOT NULL,
+    usageLimit NUMBER DEFAULT 1 NOT NULL,
+    CONSTRAINT pk_member_coupon PRIMARY KEY (id, couponNo)
+);
+
+CREATE TABLE price
+(
+    itemNo NUMBER REFERENCES item(itemNo) ON DELETE CASCADE NOT NULL,
+    priceNo NUMBER PRIMARY KEY NOT NULL,
+    startDate DATE DEFAULT SYSDATE,
+    endDate DATE DEFAULT '9999-12-31',
+    itemPrice NUMBER NOT NULL,
+    Discount NUMBER DEFAULT 0,
+    Rate NUMBER DEFAULT 0
+);
+
+CREATE TABLE ItemOption
+(
+    optionValueNo NUMBER NOT NULL,
+    itemNo NUMBER NOT NULL,
+    CONSTRAINT XPK상품옵션 PRIMARY KEY (itemNo, optionValueNo),
+    CONSTRAINT IO_optionVno FOREIGN KEY (optionValueNo) REFERENCES OptionValue(optionValueNo) ON DELETE CASCADE,
+    CONSTRAINT IO_itemNo FOREIGN KEY (itemNo) REFERENCES Item(itemNo) ON DELETE CASCADE
+);
+
+CREATE TABLE orders
+(
+    ono NUMBER PRIMARY KEY,
+    id VARCHAR2(50) REFERENCES member(id),
+    name VARCHAR2(30) NOT NULL,
+    tel VARCHAR2(15) NOT NULL,
+    oDate DATE DEFAULT SYSDATE,
+    deliveryCost NUMBER(10) DEFAULT 3000 NOT NULL,
+    payment NUMBER(1) NOT NULL,
+    postalCode NUMBER(10) NOT NULL,
+    address VARCHAR2(300) NOT NULL,
+    detAddress VARCHAR2(300) NOT NULL,
+    status NUMBER(1) DEFAULT 1 NOT NULL,
+    request VARCHAR2(1000),
+    reason VARCHAR2(1000)
+);
+
+CREATE TABLE order_detail
+(
+    odno NUMBER PRIMARY KEY,
+    ono NUMBER REFERENCES orders(ono),
+    itemNo NUMBER REFERENCES item(itemNo),
+    count NUMBER(10) NOT NULL,
+    review NUMBER(1) DEFAULT 0 NOT NULL CHECK(review IN (0, 1)),
+    optionName VARCHAR2(100)
+);
+
+CREATE TABLE review
+(
+    no NUMBER PRIMARY KEY,
+    id VARCHAR2(20) REFERENCES member(id) ON DELETE CASCADE NOT NULL,
+    content VARCHAR2(2000) NOT NULL,
+    writeDate DATE DEFAULT SYSDATE,
+    updateDate DATE DEFAULT SYSDATE,
+    rating NUMBER DEFAULT 5 CHECK (rating IN(1, 2, 3, 4, 5)),
+    ment VARCHAR2(30) DEFAULT '아주 좋아요' CHECK (ment IN('별로에요','그저 그래요','보통이에요','마음에 들어요','아주 좋아요')),
+    adminreply VARCHAR2(2000),
+    fileName VARCHAR2(50),
+    itemNo NUMBER REFERENCES item(itemNo) ON DELETE CASCADE
+);
+
+CREATE TABLE notice
+(
+    no NUMBER PRIMARY KEY,
+    title VARCHAR2(300) NOT NULL,
+    content VARCHAR(2000) NOT NULL,
+    startDate DATE DEFAULT SYSDATE,
+    endDate DATE DEFAULT '9999-12-30',
+    writeDate DATE DEFAULT SYSDATE,
+    updateDate DATE DEFAULT SYSDATE,
+    priority NUMBER DEFAULT 1 NOT NULL
+);
